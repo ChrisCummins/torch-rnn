@@ -54,18 +54,12 @@ end
 
 
 function utils.read_json(path)
-  local f = io.open(path, 'r')
-  local s = f:read('*all')
-  f:close()
-  return cjson.decode(s)
+  return cjson.decode(utils.read_file(path))
 end
 
 
 function utils.write_json(path, obj)
-  local s = cjson.encode(obj)
-  local f = io.open(path, 'w')
-  f:write(s)
-  f:close()
+  utils.write_file(path, cjson.encode(obj))
 end
 
 
