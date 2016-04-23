@@ -38,6 +38,21 @@ function utils.get_size(obj)
 end
 
 
+function utils.read_file(path)
+  local f = io.open(path, 'r')
+  local s = f:read('*all')
+  f:close()
+  return s
+end
+
+
+function utils.write_file(path, str)
+  local f = io.open(path, 'w')
+  f:write(str)
+  f:close()
+end
+
+
 function utils.read_json(path)
   local f = io.open(path, 'r')
   local s = f:read('*all')
