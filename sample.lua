@@ -38,5 +38,18 @@ if opt.verbose == 1 then print(msg) end
 
 model:evaluate()
 
-local sample = model:sample(opt)
-print(sample)
+local length = opt.length
+local slice_len = 10
+local seed = opt.start_text
+
+while length > 0 do
+  opt.length = slice_len
+  opt.start_text = seed
+  print(opt)
+
+  sample_slice = model:sample(opt)
+  print(sample_slice)
+
+  length = length - slice_len
+  seed = seed .. sample_slice
+end
