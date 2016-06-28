@@ -15,6 +15,7 @@ cmd:option('-gpu_backend', 'cuda')
 cmd:option('-verbose', 0)
 cmd:option('-stream', 0)
 cmd:option('-opencl', 0)
+cmd:option('-n', 1)
 local opt = cmd:parse(arg)
 
 
@@ -40,7 +41,15 @@ if opt.verbose == 1 then print(msg) end
 
 model:evaluate()
 
-local sample = model:sample(opt)
-if opt.stream == 0 then -- If streaming then sample has already been printed
-  print(sample)
+local i = 1
+while i <= opt.n do
+  if opt.n > 1 then
+    print('\n\n=== SAMPLE ' .. i .. ' ===')
+  end
+  local sample = model:sample(opt)
+  -- If streaming then sample has already been printed
+  if opt.stream == 0 and opt.opencl == 0 then
+    print(sample)
+  end
+  i = i + 1
 end
