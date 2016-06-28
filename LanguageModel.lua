@@ -163,6 +163,12 @@ function LM:sample(kwargs)
   local sample = utils.get_kwarg(kwargs, 'sample', 1)
   local temperature = utils.get_kwarg(kwargs, 'temperature', 1)
   local stream = utils.get_kwarg(kwargs, 'stream', 0)
+  local opencl = utils.get_kwarg(kwargs, 'opencl', 0)
+
+  -- If running in opencl mode, always stream output
+  if opencl == 1 then
+    stream = 1
+  end
 
   local sampled = torch.LongTensor(1, T)
   self:resetStates()
@@ -190,6 +196,8 @@ function LM:sample(kwargs)
   end
   
   local _, next_char = nil, nil
+  local depth = 1 -- OpenCL depth count
+
   for t = first_t, T do
     if sample == 0 then
       _, next_char = scores:max(3)
@@ -200,14 +208,30 @@ function LM:sample(kwargs)
        next_char = torch.multinomial(probs, 1):view(1, 1)
     end
     sampled[{{}, {t, t}}]:copy(next_char)
+    local token = self.idx_to_token[next_char[1][1]]
     if stream == 1 then
-      io.write(self.idx_to_token[next_char[1][1]])
+      io.write(token)
     end
     scores = self:forward(next_char)
+    t = t + 1
+
+    if opencl == 1 then
+      if token == '{' then
+        depth = depth + 1
+      elseif token == '}' then
+        depth = depth - 1
+      end
+      -- Braces are balanced, stop sampling.
+      if depth == 0 then
+        break
+      end
+    end
   end
 
   self:resetStates()
-  return self:decode_string(sampled[1])
+  if stream == 0 then
+    return self:decode_string(sampled[1])
+  end
 end
 
 
