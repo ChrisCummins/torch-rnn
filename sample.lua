@@ -44,7 +44,7 @@ model:evaluate()
 local i = 1
 while i <= opt.n do
   if opt.n > 1 then
-    print('\n\n=== SAMPLE ' .. i .. ' ===')
+    print('\n\n/* === SAMPLE ' .. i .. ' === */')
   end
   local sample = model:sample(opt)
   -- If streaming then sample has already been printed
